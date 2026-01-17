@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="JARVIS" />
+    <meta name="description" content="AI Voice Assistant - Local LLM powered" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    
+    <title>J.A.R.V.I.S. - Local AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              'orbitron': ['"Orbitron"', 'sans-serif'],
+              'rajdhani': ['"Rajdhani"', 'sans-serif'],
+              'mono': ['"Share Tech Mono"', 'monospace'],
+            },
+            colors: {
+              'cyan': {
+                400: '#22d3ee',
+                500: '#06b6d4',
+                900: '#164e63',
+                950: '#083344',
+              },
+              'jarvis': '#00f0ff',
+            },
+            animation: {
+              'spin-slow': 'spin 10s linear infinite',
+              'reverse-spin': 'spin 15s linear infinite reverse',
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'scan': 'scan 4s linear infinite',
+              'flash': 'flash 0.5s ease-in-out',
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              scan: {
+                '0%': { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(100%)' }
+              },
+              flash: {
+                '0%, 100%': { opacity: '1' },
+                '50%': { opacity: '0.5' }
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' }
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #000;
+        color: #00f0ff;
+        overflow-x: hidden;
+        overflow-y: auto;
+        min-height: 100vh;
+      }
+      
+      /* Inline code styling */
+      code {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 0.1em 0.4em;
+        border-radius: 3px;
+        font-family: 'Share Tech Mono', monospace;
+        font-size: 0.9em;
+      }
+      
+      /* STARK AESTHETIC UTILITIES */
+      
+      .stark-corner {
+        clip-path: polygon(
+          20px 0, 100% 0, 
+          100% calc(100% - 20px), calc(100% - 20px) 100%, 
+          0 100%, 0 20px
+        );
+      }
+
+      .glass-panel {
+        background: rgba(2, 6, 23, 0.7);
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(0, 240, 255, 0.2);
+        box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
+        position: relative;
+      }
+      
+      .glass-panel::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        z-index: -1;
+        box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+        pointer-events: none;
+      }
+
+      .text-glow {
+        text-shadow: 0 0 5px rgba(0, 240, 255, 0.6), 0 0 10px rgba(0, 240, 255, 0.3);
+      }
+      
+      .text-glow-red {
+        text-shadow: 0 0 5px rgba(239, 68, 68, 0.6), 0 0 10px rgba(239, 68, 68, 0.3);
+      }
+      
+      .text-glow-yellow {
+        text-shadow: 0 0 5px rgba(234, 179, 8, 0.6), 0 0 10px rgba(234, 179, 8, 0.3);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #000; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #005577; 
+        border-radius: 2px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #164e63; 
+        border-radius: 2px;
+      }
+
+      /* CRT & VIGNETTE EFFECT */
+      body::after {
+        content: " ";
+        display: block;
+        position: fixed;
+        top: 0; left: 0; bottom: 0; right: 0;
+        background: 
+          linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+          linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)),
+          radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.8) 100%);
+        z-index: 100;
+        background-size: 100% 3px, 3px 100%, 100% 100%;
+        pointer-events: none;
+      }
+
+      /* PERSPECTIVE GRID BACKGROUND */
+      .perspective-grid {
+        position: absolute;
+        width: 200%;
+        height: 100%;
+        left: -50%;
+        background-image: 
+          linear-gradient(transparent 95%, rgba(6, 182, 212, 0.3) 95%), 
+          linear-gradient(90deg, transparent 95%, rgba(6, 182, 212, 0.3) 95%);
+        background-size: 60px 60px;
+        transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px);
+        opacity: 0.15;
+        animation: grid-move 20s linear infinite;
+        pointer-events: none;
+      }
+      
+      @keyframes grid-move {
+        0% { transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px) translateY(0); }
+        100% { transform: perspective(500px) rotateX(60deg) translateY(100px) translateZ(-200px) translateY(60px); }
+      }
+      
+      /* Spin Animation for SVG */
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./src/main.tsx"></script>
+    
+    <!-- Register Service Worker for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[PWA] Service worker registered'))
+            .catch(err => console.log('[PWA] Service worker registration failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>

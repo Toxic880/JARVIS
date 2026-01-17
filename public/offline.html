@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JARVIS - Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a0a;
+      color: #00d4ff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+    }
+    .arc-reactor {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,255,0.3) 0%, transparent 70%);
+      border: 3px solid rgba(0,212,255,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    .arc-reactor::before {
+      content: '';
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(0,212,255,0.2);
+      border: 2px solid rgba(0,212,255,0.4);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 300;
+      letter-spacing: 8px;
+      margin-bottom: 20px;
+    }
+    p {
+      color: rgba(0,212,255,0.6);
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    button {
+      background: transparent;
+      border: 1px solid rgba(0,212,255,0.5);
+      color: #00d4ff;
+      padding: 12px 30px;
+      font-size: 14px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: #00d4ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="arc-reactor"></div>
+    <h1>JARVIS</h1>
+    <p>
+      I'm currently unable to connect to the server.
+      Please check your network connection and try again.
+    </p>
+    <button onclick="location.reload()">RETRY CONNECTION</button>
+  </div>
+</body>
+</html>

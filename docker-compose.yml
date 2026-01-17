@@ -1,0 +1,147 @@
+# JARVIS Full Stack Docker Compose
+# 
+# QUICK START:
+#   1. cp .env.example .env
+#   2. Edit .env with your API keys
+#   3. docker-compose up -d
+#   4. Open http://localhost:5173
+#
+# SERVICES:
+#   - jarvis-server: Backend API (port 3001)
+#   - jarvis-client: Frontend UI (port 5173)
+#   - jarvis-whisper: Local STT (port 9000) - optional, enable with --profile whisper
+#
+# PROFILES:
+#   docker-compose up -d                    # Basic setup
+#   docker-compose --profile whisper up -d  # With local speech recognition
+#   docker-compose --profile sandbox up -d  # With code sandbox
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # JARVIS SERVER (Backend API)
+  # ==========================================================================
+  jarvis-server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: jarvis-server
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DATABASE_PATH=/app/data/jarvis.db
+      # Auth
+      - JWT_SECRET=${JWT_SECRET:-please-change-this-secret}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-please-change-this-too}
+      # LLM
+      - LLM_BASE_URL=${LLM_BASE_URL:-http://host.docker.internal:1234}
+      - LLM_API_KEY=${LLM_API_KEY:-}
+      - LLM_MODEL=${LLM_MODEL:-default}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # Voice
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY:-}
+      - ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-pNInz6obpgDQGcFmaJgB}
+      - WHISPER_LOCAL_URL=${WHISPER_LOCAL_URL:-http://jarvis-whisper:9000/asr}
+      # Home Assistant
+      - HOME_ASSISTANT_URL=${HOME_ASSISTANT_URL:-}
+      - HOME_ASSISTANT_TOKEN=${HOME_ASSISTANT_TOKEN:-}
+      # OAuth
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID:-}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET:-}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      # Notifications
+      - PUSHOVER_USER_KEY=${PUSHOVER_USER_KEY:-}
+      - PUSHOVER_API_TOKEN=${PUSHOVER_API_TOKEN:-}
+      # CORS
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,${EXTRA_ORIGINS:-}
+    volumes:
+      - jarvis-data:/app/data
+      - jarvis-logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ==========================================================================
+  # JARVIS CLIENT (Frontend UI)
+  # ==========================================================================
+  jarvis-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jarvis-client
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+      - VITE_WS_URL=ws://localhost:3001
+    depends_on:
+      jarvis-server:
+        condition: service_healthy
+
+  # ==========================================================================
+  # LOCAL WHISPER (Offline Speech-to-Text)
+  # Enable with: docker-compose --profile whisper up -d
+  # ==========================================================================
+  jarvis-whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: jarvis-whisper
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - ASR_MODEL=base
+      - ASR_ENGINE=openai_whisper
+    volumes:
+      - whisper-cache:/root/.cache/whisper
+    profiles:
+      - whisper
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # ==========================================================================
+  # SANDBOX (Isolated Code Execution)
+  # Enable with: docker-compose --profile sandbox up -d
+  # ==========================================================================
+  jarvis-sandbox:
+    build:
+      context: ./sandbox
+      dockerfile: Dockerfile
+    container_name: jarvis-sandbox
+    network_mode: none
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 256m
+    cpus: 1.0
+    tmpfs:
+      - /tmp:size=64m
+      - /workspace:size=32m
+    profiles:
+      - sandbox
+
+volumes:
+  jarvis-data:
+    name: jarvis-data
+  jarvis-logs:
+    name: jarvis-logs
+  whisper-cache:
+    name: jarvis-whisper-cache
+
+networks:
+  default:
+    name: jarvis-network
