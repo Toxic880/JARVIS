@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-black text-white overflow-hidden;
+    font-family: 'Rajdhani', 'Inter', sans-serif;
+  }
+}
+
+/* ============================================================================
+   3D PERSPECTIVE GRID - The "Iron Man Workshop" Background
+   ============================================================================ */
+
+.perspective-grid {
+  background-size: 50px 50px;
+  background-image:
+    linear-gradient(to right, rgba(6, 182, 212, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.1) 1px, transparent 1px);
+  transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+  width: 200vw;
+  height: 200vh;
+  position: absolute;
+  top: 0;
+  left: -50%;
+  animation: grid-move 20s linear infinite;
+  pointer-events: none;
+  opacity: 0.15;
+}
+
+@keyframes grid-move {
+  0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+  100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-200px); }
+}
+
+/* ============================================================================
+   HOLOGRAPHIC TEXT EFFECTS
+   ============================================================================ */
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3);
+}
+
+.text-glow-bright {
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.8), 0 0 30px rgba(0, 240, 255, 0.4);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 5px rgba(239, 68, 68, 0.6), 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.text-glow-yellow {
+  text-shadow: 0 0 5px rgba(234, 179, 8, 0.6), 0 0 10px rgba(234, 179, 8, 0.3);
+}
+
+/* ============================================================================
+   GLASS PANELS - Holographic UI Elements
+   ============================================================================ */
+
+.glass-panel {
+  background: rgba(2, 6, 23, 0.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.05);
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.1);
+  pointer-events: none;
+}
+
+/* ============================================================================
+   CUSTOM SCROLLBAR - Minimal Tech Style
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #164e63;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0891b2;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #164e63;
+  border-radius: 2px;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #164e63 transparent;
+}
+
+/* ============================================================================
+   SPIN ANIMATION (for Arc Reactor SVG)
+   ============================================================================ */
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   CRT / VIGNETTE EFFECT (Optional - for extra authenticity)
+   ============================================================================ */
+
+body::after {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%), 
+    radial-gradient(circle at center, transparent 60%, rgba(0,0,0,0.7) 100%);
+  z-index: 100;
+  background-size: 100% 3px, 100% 100%;
+  pointer-events: none;
+}
+
+/* ============================================================================
+   STARK AESTHETIC UTILITIES
+   ============================================================================ */
+
+.stark-corner {
+  clip-path: polygon(
+    20px 0, 100% 0, 
+    100% calc(100% - 20px), calc(100% - 20px) 100%, 
+    0 100%, 0 20px
+  );
+}
+
+.stark-border {
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 
+    0 0 10px rgba(0, 240, 255, 0.1),
+    inset 0 0 10px rgba(0, 240, 255, 0.05);
+}
+
+/* ============================================================================
+   HOLOGRAM ANIMATIONS
+   ============================================================================ */
+
+@keyframes hologramFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+  25%, 75% { opacity: 0.98; }
+}
+
+.hologram {
+  animation: hologramFlicker 3s infinite;
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
